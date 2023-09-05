@@ -13,7 +13,7 @@ async function getArtists() {
   return JSON.parse(artistList);
   // console.log(artists);
 
-  // return artists; 
+  // return artists;
 }
 
 // async function makeNewArtist(artists) {
@@ -87,17 +87,33 @@ app.post("/artists", async (req, res) => {
 //   shortDescription: req.body.shortDescription
 // };
 
-app.put("/artists/:artistID", async (req, res) => {
-  console.log("vi putter -- hello motherfucker");
-  const id = req.params.artistID;
+app.put("/artists/:id", async (req, res) => {
+  console.log("vi putter");
+  const id = req.params.id;
   console.log(id);
 
-  const data = await getArtists();
-  const artists = JSON.parse(data);
-  const artistToUpdate = artists.find((artist) => artist.id === id);
+  const artists = await getArtists();
+  // const artists = JSON.parse(data);
 
-  res.send("put put put");
+  const artistToUpdate = artists.find(
+    (artist) => Number(artist.id) === Number(id)
+  );
+  const body = req.body;
+  console.log(body);
+  artistToUpdate.name = body.name;
+  artistToUpdate.birthdate = body.birthdate;
+  artistToUpdate.activeSince = body.activeSince;
+  artistToUpdate.genres = body.genres;
+  artistToUpdate.labels = body.labels;
+  artistToUpdate.website = body.website;
+  artistToUpdate.image = body.image;
+  artistToUpdate.shortDescription = body.shortDescription;
+
+  fs.writeFile("artistData.json", JSON.stringify(artists));
+  res.json(artists);
 });
+
+// app.delete()
 
 // app.post("/artists", async (req, res) => {
 //   console.log(req.body);

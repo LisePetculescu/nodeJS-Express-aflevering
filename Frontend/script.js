@@ -2,6 +2,7 @@
 
 window.addEventListener("load", start);
 const endpoint = "http://localhost:3000";
+let selectedArtist;
 
 function start() {
   console.log("we have connection to js 👌🙌");
@@ -15,6 +16,9 @@ function start() {
   document
     .querySelector("#form-create")
     .addEventListener("submit", createArtist);
+  document
+    .querySelector("#form-update")
+    .addEventListener("submit", submitUpdatedArtist);
 
   updateArtistpage();
   console.log("START FUNC");
@@ -110,6 +114,7 @@ async function createArtist(event) {
 }
 
 function selectedToUpdate(artist) {
+  selectedArtist = artist;
   const form = document.querySelector("#form-update");
   form.name.value = artist.name;
   form.birthdate.value = artist.birthdate;
@@ -120,5 +125,49 @@ function selectedToUpdate(artist) {
   form.image.value = artist.image;
   form.shortDescription.value = artist.shortDescription;
 
+  console.log(artist.id);
+  // const id = artist.id;
+  // submitUpdatedArtist(id)
+
   document.querySelector("#dialog-update-artist").showModal();
+}
+
+async function submitUpdatedArtist(event) {
+  event.preventDefault();
+
+  // const name = event.target.name.value;
+  // const title = event.target.title.value;
+  // const mail = event.target.mail.value;
+  // const image = event.target.image.value;
+  // // update user
+  // const userToUpdate = { name, title, mail, image };
+  // const userAsJson = JSON.stringify(userToUpdate);
+  // const response1 = await fetch(`${endpoint}/artists/${selectedUser.id}`, {
+  //   method: "PUT",
+  //   body: userAsJson,
+  // });
+  const form = event.target;
+  const updatedArtist = {
+    name: form.name.value,
+    birthdate: form.birthdate.value,
+    activeSince: form.activeSince.value,
+    genres: form.genres.value,
+    labels: form.labels.value,
+    website: form.website.value,
+    image: form.image.value,
+    shortDescription: form.shortDescription.value,
+  };
+
+  // JSONify the updated artist
+  const artistAsJson = JSON.stringify(updatedArtist);
+  const response = await fetch(`${endpoint}/artists/${selectedArtist.id}`, {
+    method: "PUT",
+    body: artistAsJson,
+    headers: { "Content-Type": "application/json" },
+  });
+  if (response.ok) {
+    updateArtistpage();
+
+    scrollToTop({ behavior: "smooth" });
+  }
 }
