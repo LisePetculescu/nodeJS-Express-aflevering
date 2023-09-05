@@ -13,13 +13,13 @@ async function getArtists() {
   return JSON.parse(artistList);
   // console.log(artists);
 
-  // return artists;
+  // return artists; 
 }
 
-async function makeNewArtist(artists) {
-  const json = JSON.stringify(artists);
-  await fs.writeFile("artistData.json", json);
-}
+// async function makeNewArtist(artists) {
+//   const json = JSON.stringify(artists);
+//   await fs.writeFile("artistData.json", json);
+// }
 
 app.listen(port, () => {
   console.log(`noget sjovt skete... server kører på http://localhost:${port}`);
@@ -36,7 +36,7 @@ app.get("/artists", async (req, res) => {
   //   const artists = JSON.parse(artistList);
   getArtists(artists);
   res.json(artists);
-  console.log(artists);
+  // console.log(artists);
 });
 
 app.get("/artists/:artistId", async (req, res) => {
@@ -55,16 +55,24 @@ app.get("/artists/:artistId", async (req, res) => {
 app.post("/artists", async (req, res) => {
   console.log(req.body);
   const newArtist = req.body;
+  newArtist.id = new Date().getTime();
+  console.log(newArtist);
+
   const artists = await getArtists();
   artists.push(newArtist);
+  const json = JSON.stringify(artists);
+  await fs.writeFile("artistData.json", json);
+  res.json(artists);
 
-  try {
-    await makeNewArtist(artists);
-    res.status(201).json({ message: "Ny kunstner tilføjet.", artist: newArtist });
-  } catch (error) {
-    console.error("Fejl ved tilføjelse af kunstner:", error);
-    res.status(500).json({ error: "Fejl ved tilføjelse af kunstner" });
-  }
+  // try {
+  // await makeNewArtist(artists);
+  //   res
+  //     .status(201)
+  //     .json({ message: "Ny kunstner tilføjet.", artist: newArtist });
+  // } catch (error) {
+  //   console.error("Fejl ved tilføjelse af kunstner:", error);
+  //   res.status(500).json({ error: "Fejl ved tilføjelse af kunstner" });
+  // }
 });
 
 // const newArtist = {
@@ -80,8 +88,8 @@ app.post("/artists", async (req, res) => {
 // };
 
 app.put("/artists/:artistID", async (req, res) => {
-  console.log("hello motherfucker");
-  const id = req.params.id;
+  console.log("vi putter -- hello motherfucker");
+  const id = req.params.artistID;
   console.log(id);
 
   const data = await getArtists();
