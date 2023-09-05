@@ -39,7 +39,7 @@ app.get("/artists", async (req, res) => {
   // console.log(artists);
 });
 
-app.get("/artists/:artistId", async (req, res) => {
+app.get("/artists/:id", async (req, res) => {
   // getArtists(artists);
   const artists = await getArtists();
   console.log(req.params);
@@ -47,7 +47,7 @@ app.get("/artists/:artistId", async (req, res) => {
   //   const artistList = await fs.readFile("artistData.json");
   //   const artists = JSON.parse(artistList);
 
-  const id = Number(req.params.artistId);
+  const id = Number(req.params.id);
   const findArtist = artists.find((artist) => artist.id === id);
   res.json(findArtist);
 });
@@ -63,29 +63,7 @@ app.post("/artists", async (req, res) => {
   const json = JSON.stringify(artists);
   await fs.writeFile("artistData.json", json);
   res.json(artists);
-
-  // try {
-  // await makeNewArtist(artists);
-  //   res
-  //     .status(201)
-  //     .json({ message: "Ny kunstner tilføjet.", artist: newArtist });
-  // } catch (error) {
-  //   console.error("Fejl ved tilføjelse af kunstner:", error);
-  //   res.status(500).json({ error: "Fejl ved tilføjelse af kunstner" });
-  // }
 });
-
-// const newArtist = {
-//   id: new Date().getTime(),
-//   name: req.body.name,
-//   birthdate: req.body.birthdate,
-//   activeSince: req.body.activeSince,
-//   genres: req.body.genres,
-//   labels: req.body.labels,
-//   website: req.body.website,
-//   image: req.body.image,
-//   shortDescription: req.body.shortDescription
-// };
 
 app.put("/artists/:id", async (req, res) => {
   console.log("vi putter");
@@ -113,8 +91,16 @@ app.put("/artists/:id", async (req, res) => {
   res.json(artists);
 });
 
-// app.delete()
+app.delete("/artists/:id", async (req, res) => {
+  const id = Number(req.params.id);
 
+  const artists = await getArtists();
+
+  const NewArtistList = artists.filter((artist) => artist.id !== id);
+  fs.writeFile("artistData.json", JSON.stringify(NewArtistList));
+
+  res.json(artists);
+});
 // app.post("/artists", async (req, res) => {
 //   console.log(req.body);
 //   res.send("nnununu");

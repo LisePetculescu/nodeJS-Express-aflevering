@@ -37,7 +37,7 @@ async function getArtistsFromBackend() {
 }
 
 function showArtistsAll(array) {
-  // document.querySelector("#artist-table-body").innerHTML = "";
+  document.querySelector("#artist-table-body").innerHTML = "";
 
   for (const artist of array) {
     showArtist(artist);
@@ -49,6 +49,7 @@ function showArtist(artist) {
     <tr class="artist-item">
       <td>
         <button class="btn-update-artist" class="buttonAni">Update</button>
+        <button class="btn-delete-artist" class="buttonAni">Delete</button>
       </td>
       <td>${artist.name}</td>
       <td>${artist.birthdate}</td>
@@ -77,6 +78,9 @@ function showArtist(artist) {
   document
     .querySelector("#artist-table-body tr:last-child .btn-update-artist")
     .addEventListener("click", () => selectedToUpdate(artist));
+  document
+    .querySelector("#artist-table-body tr:last-child .btn-delete-artist")
+    .addEventListener("click", () => deleteArtist(artist.id));
 }
 
 async function createArtist(event) {
@@ -115,6 +119,8 @@ async function createArtist(event) {
 
 function selectedToUpdate(artist) {
   selectedArtist = artist;
+  console.log("my selected artist  ", selectedArtist);
+
   const form = document.querySelector("#form-update");
   form.name.value = artist.name;
   form.birthdate.value = artist.birthdate;
@@ -125,27 +131,13 @@ function selectedToUpdate(artist) {
   form.image.value = artist.image;
   form.shortDescription.value = artist.shortDescription;
 
-  console.log(artist.id);
-  // const id = artist.id;
-  // submitUpdatedArtist(id)
-
   document.querySelector("#dialog-update-artist").showModal();
 }
 
 async function submitUpdatedArtist(event) {
   event.preventDefault();
+  console.log("my updated artist  ", selectedArtist.id);
 
-  // const name = event.target.name.value;
-  // const title = event.target.title.value;
-  // const mail = event.target.mail.value;
-  // const image = event.target.image.value;
-  // // update user
-  // const userToUpdate = { name, title, mail, image };
-  // const userAsJson = JSON.stringify(userToUpdate);
-  // const response1 = await fetch(`${endpoint}/artists/${selectedUser.id}`, {
-  //   method: "PUT",
-  //   body: userAsJson,
-  // });
   const form = event.target;
   const updatedArtist = {
     name: form.name.value,
@@ -167,7 +159,18 @@ async function submitUpdatedArtist(event) {
   });
   if (response.ok) {
     updateArtistpage();
+    scrollToTop({ behavior: "smooth" });
+  }
+}
 
+async function deleteArtist(id) {
+  console.log(id);
+  const response = await fetch(`${endpoint}/artists/${id}`, {
+    method: "DELETE",
+  });
+
+  if (response.ok) {
+    updateArtistpage();
     scrollToTop({ behavior: "smooth" });
   }
 }
