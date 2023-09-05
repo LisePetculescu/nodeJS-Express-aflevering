@@ -5,12 +5,20 @@ import fs from "fs/promises";
 const app = express();
 const port = 3000;
 
+app.use(cors());
+app.use(express.json());
+
 async function getArtists() {
   const artistList = await fs.readFile("artistData.json");
-  const artists = JSON.parse(artistList);
-  console.log(artists);
+  return JSON.parse(artistList);
+  // console.log(artists);
 
-  return artists;
+  // return artists;
+}
+
+async function makeNewArtist(artists) {
+  const json = JSON.stringify(artists);
+  await fs.writeFile("artistData.json", json);
 }
 
 app.listen(port, () => {
@@ -21,7 +29,8 @@ app.get("/", (req, res) => {
   res.send("vi får respons! 🎉👌");
 });
 
-app.get("/artists", async (req, res, artists) => {
+app.get("/artists", async (req, res) => {
+  const artists = await getArtists();
   //   res.send("vi får artister! 🎉");
   //   const artistList = await fs.readFile("artistData.json");
   //   const artists = JSON.parse(artistList);
@@ -30,40 +39,96 @@ app.get("/artists", async (req, res, artists) => {
   console.log(artists);
 });
 
-app.get("/artists/:artistId", async (req, res, artists) => {
-  getArtists(artists);
+app.get("/artists/:artistId", async (req, res) => {
+  // getArtists(artists);
+  const artists = await getArtists();
   console.log(req.params);
 
   //   const artistList = await fs.readFile("artistData.json");
   //   const artists = JSON.parse(artistList);
 
-  const id = req.params.artistId;
-  const findObj = artists.find((artist) => artist.id === id);
-  res.json(findObj);
+  const id = Number(req.params.artistId);
+  const findArtist = artists.find((artist) => artist.id === id);
+  res.json(findArtist);
 });
 
-app.post("/artists", (req, res) => {
+app.post("/artists", async (req, res) => {
   console.log(req.body);
-
-  const newArtist = {
-    id: new Date().getTime(),
-    name: req.body.name,
-    birthdate: req.body.birthdate,
-    activeSince: req.body.activeSince,
-    genres: req.body.genres,
-    labels: req.body.labels,
-    website: req.body.website,
-    image: req.body.image,
-    shortDescription: req.body.shortDescription
-  };
-
-  console.log(newArtist);
+  const newArtist = req.body;
+  const artists = await getArtists();
   artists.push(newArtist);
-  console.log(artists);
-  res.json(artists);
+
+  try {
+    await makeNewArtist(artists);
+    res.status(201).json({ message: "Ny kunstner tilføjet.", artist: newArtist });
+  } catch (error) {
+    console.error("Fejl ved tilføjelse af kunstner:", error);
+    res.status(500).json({ error: "Fejl ved tilføjelse af kunstner" });
+  }
 });
 
-const body = { name: "nameOfArtist", birthdate: "1234-12-12", activeSince: "1234", genres: ["pop", "Jazz"], labels: "aLabelName", website: "www.aWebsite.com", image: "www.aPicture.com", shortDescription: "Here I write something." };
+// const newArtist = {
+//   id: new Date().getTime(),
+//   name: req.body.name,
+//   birthdate: req.body.birthdate,
+//   activeSince: req.body.activeSince,
+//   genres: req.body.genres,
+//   labels: req.body.labels,
+//   website: req.body.website,
+//   image: req.body.image,
+//   shortDescription: req.body.shortDescription
+// };
+
+app.put("/artists/:artistID", async (req, res) => {
+  console.log("hello motherfucker");
+  const id = req.params.id;
+  console.log(id);
+
+  const data = await getArtists();
+  const artists = JSON.parse(data);
+  const artistToUpdate = artists.find((artist) => artist.id === id);
+
+  res.send("put put put");
+});
+
+// app.post("/artists", async (req, res) => {
+//   console.log(req.body);
+//   res.send("nnununu");
+//   const newArtist = req.body;
+//   const artists = await getArtists();
+//   artists.push(newArtist);
+
+//   try {
+//     // File read and write operations
+//   } catch (error) {
+//     console.error("Error:", error);
+//     res.status(500).json({ error: "Error occurred while reading/writing to the JSON file." });
+//   }
+
+// await makeNewArtist(artists);
+// res.send("new artist made");
+
+// try {
+//   await makeNewArtist(artists);
+//   res.status(201).json({ message: "Ny kunstner tilføjet.", artist: newArtist });
+// } catch (error) {
+//   console.error("Fejl ved tilføjelse af kunstner:", error);
+//   res.status(500).json({ error: "Fejl ved tilføjelse af kunstner" });
+// }
+// // const newArtist = JSON.stringify(data);
+// // fs.writeFile("artistData.json", newArtist);
+
+// const json = JSON.stringify(artists);
+// await fs.writeFile("artistData.json", json);
+
+// console.log(newArtist);
+// makeNewArtist(newArtist);
+// artists.push(newArtist);
+// console.log(artists);
+// res.json(artists);
+// });
+
+// const body = { name: "nameOfArtist", birthdate: "1234-12-12", activeSince: "1234", genres: ["pop", "Jazz"], labels: "aLabelName", website: "www.aWebsite.com", image: "www.aPicture.com", shortDescription: "Here I write something." };
 //  {
 //      "name": "nameOfArtist",
 //     "birthdate": "1234-12-12",
